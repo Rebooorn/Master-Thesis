@@ -48,7 +48,7 @@ def conv2d(input, weight, bias, prob):
         return drop_out
 
 
-def transposed_conv2d(input, weight, stride):
+def transposed_conv2d(input, weight, bias, stride):
     '''
     Helper function for 2D transposed conv layer
     by default, the scaling size is [*1, *2, *2, *1/2]
@@ -66,6 +66,7 @@ def transposed_conv2d(input, weight, stride):
                                              output_shape=output_shape,
                                              strides=[1, stride, stride, 1],
                                              padding='VALID')
+        transconv2d = tf.nn.bias_add(value=transconv2d, bias=bias)
         return transconv2d
 
 
@@ -109,5 +110,5 @@ def pixelwise_softmax(output_map):
 
 
 def cross_entropy(label, output_map):
-    return -tf.reduce_mean()
+    return -tf.reduce_mean(label * tf.log(tf.clip_by_value(output_map, 1e-10, 1.0)), name='cross-entropy')
 
