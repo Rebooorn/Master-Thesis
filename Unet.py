@@ -23,6 +23,13 @@ def _get_image_summary(input_tensor):
     V = tf.reshape(V, (-1, w, h, 1))
     return V
 
+def error_rate(prediction, label):
+    '''calculate the error rate based on prediction and label'''
+    pred_map = np.argmax(prediction, 3)
+    label_map = np.argmax(label, 3)
+    pixel_volume = prediction.shape[0] * prediction.shape[1] * prediction.shape[2]
+    return 100.0 - 100.0 * (np.sum(pred_map == label_map) / pixel_volume)
+
 
 def create_unet(input, keep_prob, channels, n_class, layers=5, feature_root=32, filter_size=3, pool_size=2,
                 summary=True):
@@ -425,14 +432,45 @@ class Trainer:
 
             return save_path
 
-    def
+    def store_prediction(self, sess, batch_x, batch_y, name):
+        prediction = sess.run(self.net.predictor, feed_dict={self.net.x: batch_x,
+                                                             self.net.y: batch_y,
+                                                             self.net.keep_prob: 1.0
+                                                            })
+        pred_shape = prediction.shape
 
+        loss = sess.run(self.net.cost, feed_dict={self.net.x: batch_x,
+                                                  self.net.y: batch_y,
+                                                  self.net.keep_prob: 1.0})
 
+        logging.info("Verification error={:.1f}%, loss= {:.4f}".format(error_rate(prediction, batch_y), loss))
 
+        # img = combine_img_prediction(batch_x, batch_y, prediction)
+        # save img
 
+        return pred_shape
 
+    def output_epoch_stats(self, epoch, total_loss, training_iters, lr):
+        logging.info('Epoch {:}, Average loss: {:.4f}, learning rate: {:.4f}'.format(epoch,
+                                                                                     (total_loss/training_iters),
+                                                                                     lr))
 
-
+    def output_minibatch_stats(self, sess, summary_writer, step, batch_x, batch_y):
+        # calculate batch loss and accuracy
+        summary_str, loss, acc, prediction = sess.run([self.summary_op,
+                                                       self.net.cost,
+                                                       self.net.accuracy,
+                                                       self.net.predictor],
+                                                      feed_dict={self.net.x: batch_x,
+                                                                 self.net.y: batch_y,
+                                                                 self.net.keep_prob: 1.0})
+        summary_writer.add_summary(summary_str, step)
+        summary_writer.flush()
+        logging.info('Iter {:}, Minibatch Loss= {:.4f}, Training accuracy= {:.4f}, Minibatch error= {:.1f}%'.format(step,
+                                                                                                                    loss,
+                                                                                                                    acc,
+                                                                                                                    error_rate(prediction, batch_y)))
+        
 
 
 
