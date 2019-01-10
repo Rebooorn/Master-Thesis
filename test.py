@@ -13,6 +13,21 @@ print(__file__)
 print(os.path.dirname(__file__))
 
 '''
+**kwarg test
+'''
+def test_kwarg(**kwargs):
+    print(kwargs.get('name'))
+    print(kwargs.get('age'))
+    if kwargs.get('gender') == 'Male':
+        print('this is a man')
+    print('salary: ',kwargs.get('salary'))
+
+test_kwarg(name='Chang', age=23, gender='female', work='master student')
+
+
+
+
+'''
 gpu accessing test
 '''
 

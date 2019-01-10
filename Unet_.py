@@ -132,6 +132,7 @@ def create_unet(input, keep_prob, channels, n_class, layers=5, feature_root=32, 
             variables.append(wd)
             variables.append(bd)
             variables.append(w1)
+
             variables.append(b1)
             variables.append(w2)
             variables.append(b2)
