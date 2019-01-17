@@ -189,7 +189,6 @@ class Unet(object):
         tf.reset_default_graph()
 
         self.n_class = n_class
-        self.summaries = kwargs.get("summaries", True)
 
         self.x = tf.placeholder("float", shape=[None, None, None, channels], name="x")
         self.y = tf.placeholder("float", shape=[None, None, None, n_class], name="y")

@@ -6,8 +6,8 @@ print("");
 print(" Press [i] to make inverse \n Press [m] to make mask \n Press [n] to go to next labeling image");
 
 // add additional dir here to expand number of classes
-var label_0_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\Label_Class_0";
 var label_1_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\Label_Class_1";
+var label_2_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\Label_Class_2";
 var origin_img_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\Origin_img";
 var unprocessed_img_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\unprocessed";
 
@@ -92,13 +92,13 @@ macro "original image [o]" {
 macro "label class 1 [1]" {
 	// save mask image to label 1 dir
 	print("label class 1 saved");
-	saveAs("Jpeg", label_1_dir + "\\" + getSaveFilename(ind));
+	saveAs("Jpeg", label_1_dir + "\\" + getSaveFilename(ind-1));
 }
 
-macro "label class 0 [0]" {
+macro "label class 2 [2]" {
 	// save mask image to label 0 dir
-	print("label class 0 saved");
-	saveAs("Jpeg", label_0_dir + "\\" + getSaveFilename(ind));
+	print("label class 2 saved");
+	saveAs("Jpeg", label_2_dir + "\\" + getSaveFilename(ind-1));
 }
 
 macro "create mask [m]" {
@@ -111,6 +111,7 @@ macro "next image [n]" {
 	close();
 	unprocessed_ind = unprocessed_ind + 1;
 	if (unprocessed_ind < unprocessed_list.length){
+		//print(unprocessed_img_dir + "\\" + unprocessed_list[unprocessed_ind]);
 		open(unprocessed_img_dir + "\\" + unprocessed_list[unprocessed_ind]);
 		print("////////////////////////////////////");
 		print(unprocessed_list[unprocessed_ind] + ":");
