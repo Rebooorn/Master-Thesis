@@ -11,6 +11,7 @@ def _image_recur(img, width, height):
     '''
     helper function for seamless image recurring, imagine it as Kaleidoscope
     reference:
+
         U-Net: Convolutional Networks for Biomedical Image Segmentation
 
     :param img: source image, any channel numbers

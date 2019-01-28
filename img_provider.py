@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 from image_recur import _image_recur
 from tf_unet.image_util import BaseDataProvider
-import tensorflow as tf
+# import tensorflow as tf
 
 
 TRAINING_PATH = os.path.join(
@@ -309,6 +309,75 @@ class minibatch_data_provider(BaseDataProvider):
         '''transform image from 0-255 to binary'''
         return np.rint(img/255.0)
 
+class simple_padding_data_provider(simple_data_provider):
+    '''padding tensor using Kaleidoscope algorithm '''
+    def __init__(self, data_shuffle=True, nclass=2, **kwargs):
+        super(simple_padding_data_provider, self).__init__(data_shuffle=data_shuffle, nclass=nclass, **kwargs)
+        self.kwargs = kwargs
+        if self.kwargs.get('pad_size') is not None:
+            self.pad_size = self.kwargs.get('pad_size')
+        else:
+            raise NameError('padding size is needed')
+
+    # Override
+    def _next_data(self):
+        '''
+                Randomly pick training images and labels,
+                return input tensor and label tensor
+
+                :return:[input tensor: shape=[batch_num, x, y, channels],
+                        output tensor: shape=[batch_num, x, y, classes]
+                '''
+        img_index = np.random.randint(self.img_num, size=1)
+
+        if self.data_shuffle:
+            np.random.shuffle(img_index)
+
+        img_name = self._get_image_names(img_index)
+
+        # not using mini-batch method
+        img_orig = cv2.imread(os.path.join(self.src_path, 'Origin_img', img_name[0]))
+
+        # determine channels in input tensor
+        if self.kwargs.get('channel') == 'red':
+            # opencv order is BGR
+            img_orig = img_orig[:, :, -1]
+            img_orig = np.reshape(img_orig, [img_orig.shape[0], img_orig.shape[1], 1])
+        elif self.kwargs.get('channel') == 'full':
+            img_orig = img_orig
+        else:
+            # use grey-value
+            img_orig = cv2.cvtColor(img_orig, cv2.COLOR_BGR2GRAY)
+            img_orig = np.reshape(img_orig, [img_orig.shape[0], img_orig.shape[1], 1])
+
+        # a fake 1st label
+        label = cv2.imread(os.path.join(self.src_path, 'Label_Class_1', img_name[0]), 0)
+        label = np.reshape(label, (label.shape[0], label.shape[1], 1))
+        for i in range(1, self.n_class):
+            cls = cv2.imread(os.path.join(self.src_path, 'Label_Class_' + str(i), img_name[0]), 0)
+            cls = np.reshape(cls, (cls.shape[0], cls.shape[1], 1))
+            label = np.concatenate((label, cls), axis=2)
+
+        label = self._from_img_to_label(label)
+        # change class 0 accordingly
+        label[:, :, 0] = 1 - np.clip(np.sum(label[:, :, 1:], axis=2), 0, 1)
+
+        # resize input tensor and label tensor according to preset size
+        if self.x is not None and self.y is not None:
+            img_orig = cv2.resize(img_orig, (self.x, self.y), interpolation=cv2.INTER_NEAREST)
+            label = cv2.resize(label, (self.x, self.y), interpolation=cv2.INTER_NEAREST)
+
+        # padding
+        img_orig = _image_recur(img_orig, self.pad_size+self.x, self.pad_size+self.y)
+        label = _image_recur(label, self.pad_size+self.x, self.pad_size+self.y)
+
+        # input_tensor = np.reshape(img_orig, (1, img_orig.shape[0], img_orig.shape[1], img_orig.shape[2]))
+        # input_tensor = np.reshape(img_orig, (1, img_orig.shape[0], img_orig.shape[1], 1))
+        # label_tensor = np.reshape(label, (1, label.shape[0], label.shape[1], label.shape[2]))
+        input_tensor = img_orig
+        label_tensor = label
+
+        return input_tensor, label_tensor
 
 
 if __name__ == '__main__':
@@ -318,7 +387,8 @@ if __name__ == '__main__':
     '''
     # test for single batch data provider with nbatch 1
     n_cls = 3
-    generator = simple_data_provider(nclass=n_cls, channel='full', test=False, x=572, y=572)
+    generator = simple_padding_data_provider(nclass=n_cls, channel='full', test=False, x=572, y=572, pad_size=88)
+    # generator = simple_data_provider(nclass=n_cls, channel='full', test=False, x=572, y=572)
 
     for _ in range(30):
         input_tensor, label_tensor = generator(1)

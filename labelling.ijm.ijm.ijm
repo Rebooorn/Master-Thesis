@@ -6,10 +6,24 @@ print("");
 print(" Press [i] to make inverse \n Press [m] to make mask \n Press [n] to go to next labeling image");
 
 // add additional dir here to expand number of classes
+/*
 var label_1_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\Label_Class_1";
 var label_2_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\Label_Class_2";
 var origin_img_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\Origin_img";
 var unprocessed_img_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TrainSet\\unprocessed";
+*/
+/*
+var label_1_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TestSet\\Label_Class_1";
+var label_2_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TestSet\\Label_Class_2";
+var origin_img_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TestSet\\Origin_img";
+var unprocessed_img_dir = "D:\\ChangLiu\\MasterThesis\\Master-Thesis\\TestSet\\unprocessed";
+*/
+var pardir = "D:\\ChangLiu\\MasterThesis\\custom-augmentation\\workshop";
+var label_1_dir = pardir + "\\Label_Class_1";
+var label_2_dir = pardir + "\\Label_Class_2";
+var origin_img_dir = pardir + "\\Origin_img";
+var unprocessed_img_dir = pardir + "\\unprocessed";
+
 
 /*
 selectWindow("optic.jpg");
